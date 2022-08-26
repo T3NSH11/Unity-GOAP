@@ -6,30 +6,52 @@ using System.Linq;
 public class Planner
 {
     public List<ActionBase> Actions = new List<ActionBase>();
+    List<string> AquiredPrereqs = new List<string>();
 
     // check if action is doable when GetNextAction(goal) if not doable get prereq in result action that isnt in aprereqs then run GetNextAction(result)
-    public List<ActionBase> GetActionList(string Goal, Agent agent)
+    public Stack<ActionBase> GetActionList(string Goal, Agent agent)
     {
-        List<ActionBase> ActionList = new List<ActionBase>();
+        Stack<ActionBase> ActionList = new Stack<ActionBase>();
+
         ActionBase GoalAction;
-
         GoalAction = GetNextAction(Goal, agent);
-
         ActionBase currentAction = GoalAction;
+
+        foreach (string s in agent.AquiredPrerequisites)
+        {
+            AquiredPrereqs.Add(s);
+        }
+
+        foreach (string s in World_States.AquiredPrerequisites)
+        {
+            AquiredPrereqs.Add(s);
+        }
 
         if (CheckIfActionDoable(currentAction, agent))
         {
-            ActionList.Add(currentAction);
+            ActionList.Push(currentAction);
             return ActionList;
         }
 
+        ActionList.Push(GoalAction);
+
         while (!CheckIfActionDoable(currentAction, agent))
         {
-            currentAction = GetNextAction(GetRequiredPrereq(currentAction, agent), agent);
-            ActionList.Add(currentAction);
-        }
-        ActionList.Add(GoalAction);
+            ActionBase Observing = currentAction;
 
+            while (GetRequiredPrereqs(Observing, agent).Count != 0 || GetRequiredPrereqs(Observing, agent) == null)
+            {
+                currentAction = GetNextAction(GetRequiredPrereqs(Observing, agent).FirstOrDefault(), agent);
+
+                foreach (string s in currentAction.Effects)
+                {
+                    AquiredPrereqs.Add(s);
+                }
+                ActionList.Push(currentAction);
+            }
+        }
+
+        AquiredPrereqs.Clear();
         return ActionList;
     }
 
@@ -45,24 +67,25 @@ public class Planner
                 }
             }
         }
-        return new ResetAction();
+        return new GoToRecharge();
     }
 
-    string GetRequiredPrereq(ActionBase action, Agent agent)
+    List<string> GetRequiredPrereqs(ActionBase action, Agent agent)
     {
-        return action.Prerequisites.Except(agent.AquiredPrerequisites).FirstOrDefault();
+        List<string> prereqs = new List<string>(action.Prerequisites.Except(AquiredPrereqs));
+        return prereqs;
+        //return (List<string>)action.Prerequisites.Except(agent.AquiredPrerequisites);
     }
 
     bool CheckIfActionDoable(ActionBase action, Agent agent)
     {
-        if(action.Prerequisites == null)
+        if (!action.Prerequisites.Except(AquiredPrereqs).Any() || action.Prerequisites == null)
         {
             return true;
         }
-        if (!action.Prerequisites.Except(agent.AquiredPrerequisites).Any())
-        {
-            return true;
-        }
+        else
+            return false;
+
         //bool Doable = false;
         //
         //foreach (string p in action.Prerequisites)
@@ -75,7 +98,5 @@ public class Planner
         //        }
         //    }
         //}
-
-        return false;
     }
 }

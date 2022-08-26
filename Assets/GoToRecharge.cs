@@ -12,7 +12,6 @@ public class GoToRecharge : ActionBase
         Prerequisites = new List<string>();
         Effects = new List<string>();
 
-        Prerequisites.Add("Working");
         Effects.Add("On Charge Pad");
     }
 

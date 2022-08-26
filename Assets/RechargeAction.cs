@@ -13,7 +13,6 @@ public class RechargeAction : ActionBase
         Effects = new List<string>();
 
         Prerequisites.Add("On Charge Pad");
-        Prerequisites.Add("Working");
         Effects.Add("Charged");
     }
 

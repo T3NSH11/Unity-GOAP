@@ -13,7 +13,7 @@ public class CleanAction : ActionBase
         Effects = new List<string>();
 
         Prerequisites.Add("World Dirty");
-        Prerequisites.Add("Working");
+        Prerequisites.Add("Charged");
         Effects.Add("World Clean");
     }
 

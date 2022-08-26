@@ -4,5 +4,5 @@ using UnityEngine;
 
 public static class World_States
 {
-   public static List<string> AquiredPrerequisites;
+   public static List<string> AquiredPrerequisites = new List<string>();
 }

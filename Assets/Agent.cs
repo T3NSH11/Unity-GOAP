@@ -16,9 +16,9 @@ public class Agent : MonoBehaviour
     {
         planner = new Planner();
         planner.Actions.Add(new GoToRecharge());
-        planner.Actions.Add(new ResetAction());
         planner.Actions.Add(new CleanAction());
         planner.Actions.Add(new RechargeAction());
+        World_States.AquiredPrerequisites.Add("World Dirty");
 
         foreach(ActionBase a in planner.Actions)
         {
@@ -29,9 +29,10 @@ public class Agent : MonoBehaviour
     void Start()
     {
         CurrentState = new GoToRecharge();
-        foreach (ActionBase a in planner.GetActionList("World Clean", this))
+        Stack<ActionBase> queue = planner.GetActionList("World Clean", this);
+        while (queue.Count != 0)
         {
-            Debug.Log(a);
+            Debug.Log(queue.Pop());
         }
     }
     
